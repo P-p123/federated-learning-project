@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Federated Healthcare AI - Multi-Hospital Network</title>
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- External CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<header>
+    <div class="header-content">
+        <div class="logo">
+            <i class="fas fa-hospital"></i>
+            <h1>Federated Healthcare AI Network</h1>
+        </div>
+        <div class="subtitle">
+            <p>🔒 Privacy-Preserving Diabetes Prediction Across 10 Major Hospitals</p>
+            <p class="tagline">Real-world Federated Learning Demonstration</p>
+        </div>
+    </div>
+</header>
+
+<!-- MAIN CONTAINER -->
+<div class="container">
+
+    <!-- LEFT PANEL -->
+    <div class="left-panel">
+        <h2><i class="fas fa-cogs"></i> Control Center</h2>
+
+        <!-- STATUS CARDS -->
+        <div class="status-cards">
+            <div class="status-card">
+                <div class="status-icon">
+                    <i class="fas fa-server"></i>
+                </div>
+                <div class="status-info">
+                    <h3>Server Status</h3>
+                    <p id="status">Ready to Start</p>
+                </div>
+            </div>
+
+            <div class="status-card">
+                <div class="status-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div class="status-info">
+                    <h3>Privacy Mode</h3>
+                    <p id="privacy-status">ON</p>
+                </div>
+            </div>
+
+            <div class="status-card">
+                <div class="status-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="status-info">
+                    <h3>Active Hospitals</h3>
+                    <p id="active-clients">10 Connected</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTROL BUTTON -->
+        <button onclick="startTraining()" class="start-btn">
+            <i class="fas fa-play"></i>
+            🚀 Start Federated Training
+        </button>
+
+        <!-- LOADER -->
+        <div class="loader" id="loader">
+            <div class="spinner"></div>
+            <p>Training in Progress...</p>
+        </div>
+
+        <!-- METRICS CARDS -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <h3><i class="fas fa-bullseye"></i> Accuracy</h3>
+                <div class="metric-value" id="accuracy">--</div>
+            </div>
+
+            <div class="metric-card">
+                <h3><i class="fas fa-crosshairs"></i> Precision</h3>
+                <div class="metric-value" id="precision">--</div>
+            </div>
+
+            <div class="metric-card">
+                <h3><i class="fas fa-search"></i> Recall</h3>
+                <div class="metric-value" id="recall">--</div>
+            </div>
+
+            <div class="metric-card">
+                <h3><i class="fas fa-balance-scale"></i> F1 Score</h3>
+                <div class="metric-value" id="f1">--</div>
+            </div>
+
+            <div class="metric-card">
+                <h3><i class="fas fa-clock"></i> Training Time</h3>
+                <div class="metric-value" id="time">--</div>
+            </div>
+        </div>
+
+        <!-- HOSPITAL STATUS TABLE -->
+        <div class="hospital-status">
+            <h3><i class="fas fa-hospital"></i> Hospital Network Status</h3>
+            <div class="table-container">
+                <table id="client-table">
+                    <thead>
+                        <tr>
+                            <th>Hospital</th>
+                            <th>Location</th>
+                            <th>Behavior</th>
+                            <th>Status</th>
+                            <th>Accuracy</th>
+                            <th>Delay</th>
+                        </tr>
+                    </thead>
+                    <tbody id="client-table-body">
+                        <tr><td colspan="6" class="loading">Waiting for hospitals to connect...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- COMPARISON TABLE -->
+        <div class="comparison">
+            <h3><i class="fas fa-chart-bar"></i> Performance Comparison</h3>
+            <table>
+                <tr>
+                    <th>Metric</th>
+                    <th><i class="fas fa-network-wired"></i> Federated</th>
+                    <th><i class="fas fa-database"></i> Centralized</th>
+                    <th><i class="fas fa-percentage"></i> Improvement</th>
+                </tr>
+                <tr>
+                    <td>Accuracy</td>
+                    <td id="f-acc">--</td>
+                    <td id="c-acc">--</td>
+                    <td id="acc-diff">--</td>
+                </tr>
+                <tr>
+                    <td>Precision</td>
+                    <td id="f-pre">--</td>
+                    <td id="c-pre">--</td>
+                    <td id="pre-diff">--</td>
+                </tr>
+                <tr>
+                    <td>Recall</td>
+                    <td id="f-rec">--</td>
+                    <td id="c-rec">--</td>
+                    <td id="rec-diff">--</td>
+                </tr>
+                <tr>
+                    <td>F1 Score</td>
+                    <td id="f-f1-table">--</td>
+                    <td id="c-f1">--</td>
+                    <td id="f1-diff">--</td>
+                </tr>
+                <tr>
+                    <td>Training Time</td>
+                    <td id="f-time-table">--</td>
+                    <td id="c-time">--</td>
+                    <td id="time-diff">--</td>
+                </tr>
+            </table>
+        </div>
+
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="right-panel">
+        <h2><i class="fas fa-chart-line"></i> Training Progress</h2>
+
+        <!-- CHART CONTAINER -->
+        <div class="chart-container">
+            <canvas id="chart"></canvas>
+        </div>
+
+        <!-- NETWORK MAP -->
+        <div class="network-map">
+            <h3><i class="fas fa-map-marked-alt"></i> Hospital Network Map</h3>
+            <div class="map-placeholder">
+                <div class="hospital-dots">
+                    <div class="hospital-dot" data-hospital="0" title="Mayo Clinic, Rochester MN">
+                        <i class="fas fa-hospital"></i>
+                        <span>Mayo</span>
+                    </div>
+                    <div class="hospital-dot" data-hospital="1" title="Cleveland Clinic, Cleveland OH">
+                        <i class="fas fa-hospital"></i>
+                        <span>Cleveland</span>
+                    </div>
+                    <div class="hospital-dot" data-hospital="2" title="Johns Hopkins, Baltimore MD">
+                        <i class="fas fa-hospital"></i>
+                        <span>Hopkins</span>
+                    </div>
+                    <div class="hospital-dot" data-hospital="3" title="Mass General, Boston MA">
+                        <i class="fas fa-hospital"></i>
+                        <span>Mass Gen</span>
+                    </div>
+                    <div class="hospital-dot" data-hospital="4" title="UCLA Medical, Los Angeles CA">
+                        <i class="fas fa-hospital"></i>
+                        <span>UCLA</span>
+                    </div>
+                    <div class="hospital-dot" data-hospital="5" title="NYU Langone, New York NY">
+                        <i class="fas fa-hospital"></i>
+                        <span>NYU</span>
+                    </div>
+                    <div class="hospital-dot" data-hospital="6" title="Duke Hospital, Durham NC">
+                        <i class="fas fa-hospital"></i>
+                        <span>Duke</span>
+                    </div>
+                    <div class="hospital-dot" data-hospital="7" title="Stanford Hospital, Stanford CA">
+                        <i class="fas fa-hospital"></i>
+                        <span>Stanford</span>
+                    </div>
+                    <div class="hospital-dot" data-hospital="8" title="Mount Sinai, New York NY">
+                        <i class="fas fa-hospital"></i>
+                        <span>Mount Sinai</span>
+                    </div>
+                    <div class="hospital-dot" data-hospital="9" title="Barnes-Jewish, St. Louis MO">
+                        <i class="fas fa-hospital"></i>
+                        <span>Barnes</span>
+                    </div>
+                </div>
+                <div class="map-connections">
+                    <!-- Animated connection lines would go here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- TRAINING STATS -->
+        <div class="training-stats">
+            <h3><i class="fas fa-tachometer-alt"></i> Training Statistics</h3>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-label">Rounds Completed</span>
+                    <span class="stat-value" id="rounds-completed">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Active Hospitals</span>
+                    <span class="stat-value" id="active-hospitals">0/10</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Avg Response Time</span>
+                    <span class="stat-value" id="avg-response">--</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Data Privacy</span>
+                    <span class="stat-value" id="privacy-level">🔒 High</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+    <div class="footer-content">
+        <p><i class="fas fa-graduation-cap"></i> Academic Project - Federated Learning Healthcare System</p>
+        <p><i class="fas fa-code"></i> Built with Flower, PyTorch, and Flask | <i class="fas fa-calendar"></i> 2026</p>
+    </div>
+</footer>
+
+<!-- External JS -->
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+</html>

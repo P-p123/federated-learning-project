@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Federated Learning Dashboard - Healthcare Analytics</title>
+    
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    
+    <!-- External CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='advanced.css') }}">
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+    <div class="sidebar-header">
+        <div class="logo">
+            <i class="fas fa-network-wired"></i>
+            <span>FL System</span>
+        </div>
+    </div>
+    
+    <nav class="sidebar-nav">
+        <a href="#overview" class="nav-item active">
+            <i class="fas fa-th-large"></i>
+            <span>Overview</span>
+        </a>
+        <a href="#training" class="nav-item">
+            <i class="fas fa-play-circle"></i>
+            <span>Start Training</span>
+        </a>
+        <a href="#progress" class="nav-item">
+            <i class="fas fa-chart-line"></i>
+            <span>Training Progress</span>
+        </a>
+        <a href="#performance" class="nav-item">
+            <i class="fas fa-star"></i>
+            <span>Model Performance</span>
+        </a>
+        <a href="#attacks" class="nav-item">
+            <i class="fas fa-shield-alt"></i>
+            <span>Attack Simulation</span>
+        </a>
+        <a href="#comparison" class="nav-item">
+            <i class="fas fa-exchange-alt"></i>
+            <span>Comparison</span>
+        </a>
+        <a href="/analysis" class="nav-item" style="border-top: 2px solid rgba(255,255,255,0.1); padding-top: 15px; margin-top: 10px;">
+            <i class="fas fa-microscope"></i>
+            <span>Behavior Analysis</span>
+        </a>
+        <a href="/verify-page" class="nav-item">
+            <i class="fas fa-check-circle"></i>
+            <span>System Verification</span>
+        </a>
+    
+    <div class="sidebar-footer">
+        <div class="system-status">
+            <h4>SYSTEM</h4>
+            <div class="status-item">
+                <span class="status-label">Server Status</span>
+                <span class="status-dot active"></span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Active Clients</span>
+                <span class="status-value" id="sidebar-clients">0/10</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Total Training Time</span>
+                <span class="status-value" id="sidebar-time">00:00:00</span>
+            </div>
+        </div>
+    </div>
+</aside>
+
+<!-- MAIN CONTENT -->
+<main class="main-content">
+    <!-- HEADER -->
+    <header class="header">
+        <div class="header-left">
+            <h1>Federated Learning Dashboard</h1>
+            <p>Privacy-Preserving Healthcare Analytics</p>
+        </div>
+        <div class="header-right">
+            <div class="privacy-badge">
+                <i class="fas fa-lock"></i>
+                <span id="privacy-mode">Privacy Mode: ON</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTENT -->
+    <div class="content">
+        
+        <!-- STATS CARDS -->
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-label">Model Accuracy</span>
+                    <i class="fas fa-arrow-up"></i>
+                </div>
+                <div class="stat-value" id="accuracy-main">71.60%</div>
+                <div class="stat-change">
+                    <i class="fas fa-chart-line"></i>
+                    <span id="accuracy-change">+3.20% this round</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-label">Accuracy Score</span>
+                    <i class="fas fa-tachometer-alt"></i>
+                </div>
+                <div class="stat-value" id="accuracy-score">57.80%</div>
+                <div class="stat-change">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Target Reached</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-label">Top 10 Hospitals</span>
+                    <i class="fas fa-hospital"></i>
+                </div>
+                <div class="stat-value">10</div>
+                <div class="stat-change">
+                    <i class="fas fa-check-circle"></i>
+                    <span>All Connected</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-label">Mail Clients</span>
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-value" id="active-clients-card">5</div>
+                <div class="stat-change">
+                    <i class="fas fa-check-circle"></i>
+                    <span id="clients-status">Active now</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-label">Prediction Score</span>
+                    <i class="fas fa-hourglass"></i>
+                </div>
+                <div class="stat-value" id="training-time">02:45:18</div>
+                <div class="stat-change">
+                    <i class="fas fa-clock"></i>
+                    <span>Total training time</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- MAIN GRID -->
+        <div class="main-grid">
+            <!-- LEFT COLUMN -->
+            <div class="left-column">
+                <!-- CLIENT STATUS -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-list"></i> Client Status</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-wrapper">
+                            <table class="clients-table">
+                                <thead>
+                                    <tr>
+                                        <th>Hospital</th>
+                                        <th>Behavior</th>
+                                        <th>Behavior Info</th>
+                                        <th>Status</th>
+                                        <th>Delay</th>
+                                        <th>Contribution</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="clients-tbody">
+                                    <tr>
+                                        <td colspan="6" class="loading-text">Waiting for clients...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TRAINING CONTROL -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-cogs"></i> Training Control</h3>
+                    </div>
+                    <div class="card-body">
+                        <button class="btn-primary" onclick="startTraining()">
+                            <i class="fas fa-play"></i>
+                            Start Training
+                        </button>
+                        <button class="btn-secondary" onclick="pauseTraining()">
+                            <i class="fas fa-pause"></i>
+                            Pause
+                        </button>
+                        <button class="btn-secondary" onclick="resetTraining()">
+                            <i class="fas fa-redo"></i>
+                            Reset
+                        </button>
+                        <div class="training-status" id="training-status">
+                            <span>Status: </span>
+                            <span id="status-text">Ready</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BEHAVIOR LEGEND -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-circle-info"></i> Client Behaviors</h3>
+                    </div>
+                    <div class="card-body behavior-legend">
+                        <div class="behavior-item">
+                            <div class="behavior-color" style="background: rgba(16, 185, 129, 0.3); border: 2px solid #10b981;"></div>
+                            <div>
+                                <strong>✓ Honest</strong>
+                                <p>Perfectly complies, high accuracy</p>
+                            </div>
+                        </div>
+                        <div class="behavior-item">
+                            <div class="behavior-color" style="background: rgba(245, 158, 11, 0.3); border: 2px solid #f59e0b;"></div>
+                            <div>
+                                <strong>🐌 Slow</strong>
+                                <p>Slow training, high latency</p>
+                            </div>
+                        </div>
+                        <div class="behavior-item">
+                            <div class="behavior-color" style="background: rgba(139, 92, 246, 0.3); border: 2px solid #8b5cf6;"></div>
+                            <div>
+                                <strong>😴 Sleepy</strong>
+                                <p>Random participation drops</p>
+                            </div>
+                        </div>
+                        <div class="behavior-item">
+                            <div class="behavior-color" style="background: rgba(59, 130, 246, 0.3); border: 2px solid #3b82f6;"></div>
+                            <div>
+                                <strong>⚡ Fast</strong>
+                                <p>Rapid training, aggressive updates</p>
+                            </div>
+                        </div>
+                        <div class="behavior-item">
+                            <div class="behavior-color" style="background: rgba(239, 68, 68, 0.3); border: 2px solid #ef4444;"></div>
+                            <div>
+                                <strong>⚠️ Unreliable</strong>
+                                <p>Sends incorrect/poisoned data</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MIDDLE COLUMN -->
+            <div class="middle-column">
+                <!-- TRAINING PROGRESS -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-chart-line"></i> Training Progress (Accuracy)</h3>
+                    </div>
+                    <div class="card-body chart-body">
+                        <canvas id="accuracy-chart"></canvas>
+                    </div>
+                </div>
+
+                <!-- TRAINING LOSS -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-chart-area"></i> Training Loss</h3>
+                    </div>
+                    <div class="card-body chart-body">
+                        <canvas id="loss-chart"></canvas>
+                    </div>
+                </div>
+
+                <!-- BEHAVIOR SUMMARY -->
+                <div class="card behavior-summary-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-balance-scale"></i> Behavior Comparison</h3>
+                    </div>
+                    <div class="card-body behavior-summary-body">
+                        <div class="behavior-summary-item">
+                            <span>Honest Clients</span>
+                            <strong id="honest-count">0</strong>
+                        </div>
+                        <div class="behavior-summary-item">
+                            <span>Fast Clients</span>
+                            <strong id="fast-count">0</strong>
+                        </div>
+                        <div class="behavior-summary-item">
+                            <span>Slow Clients</span>
+                            <strong id="slow-count">0</strong>
+                        </div>
+                        <div class="behavior-summary-item">
+                            <span>Sleepy Clients</span>
+                            <strong id="sleepy-count">0</strong>
+                        </div>
+                        <div class="behavior-summary-item">
+                            <span>Unreliable Clients</span>
+                            <strong id="unreliable-count">0</strong>
+                        </div>
+                        <div class="behavior-summary-item behavior-group-item">
+                            <span>Honest vs Malicious</span>
+                            <strong id="honest-vs-malicious">0 / 0</strong>
+                        </div>
+                    </div>
+                </div>
+
+            <!-- RIGHT COLUMN -->
+            <div class="right-column">
+                <!-- CLIENT CONTRIBUTION -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-pie-chart"></i> Client Contribution</h3>
+                    </div>
+                    <div class="card-body chart-body">
+                        <canvas id="contribution-chart"></canvas>
+                    </div>
+                </div>
+
+                <!-- METRICS -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-tachometer-alt"></i> Current Metrics</h3>
+                    </div>
+                    <div class="card-body metrics-list">
+                        <div class="metric">
+                            <span class="metric-label">Precision</span>
+                            <span class="metric-value" id="metric-precision">--</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Recall</span>
+                            <span class="metric-value" id="metric-recall">--</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">F1 Score</span>
+                            <span class="metric-value" id="metric-f1">--</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Round</span>
+                            <span class="metric-value" id="metric-round">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- COMPARISON SECTION -->
+        <div class="card full-width">
+            <div class="card-header">
+                <h3><i class="fas fa-exchange-alt"></i> Federated Learning Comparison</h3>
+            </div>
+            <div class="card-body">
+                <div class="comparison-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Scenario</th>
+                                <th>Accuracy</th>
+                                <th>Precision</th>
+                                <th>Recall</th>
+                                <th>F1 Scores</th>
+                                <th>Training Time</th>
+                                <th>Rounds to Converge</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="federated-row">
+                                <td><strong>Federated Learning (10 Hospitals)</strong></td>
+                                <td id="comp-f-acc">--</td>
+                                <td id="comp-f-pre">--</td>
+                                <td id="comp-f-rec">--</td>
+                                <td id="comp-f-f1">--</td>
+                                <td id="comp-f-time">--</td>
+                                <td id="comp-f-rounds">--</td>
+                                <td><span class="badge badge-active">In Progress</span></td>
+                            </tr>
+                            <tr class="centralized-row">
+                                <td><strong>Centralized Learning (Single Server)</strong></td>
+                                <td id="comp-c-acc">--</td>
+                                <td id="comp-c-pre">--</td>
+                                <td id="comp-c-rec">--</td>
+                                <td id="comp-c-f1">--</td>
+                                <td id="comp-c-time">--</td>
+                                <td id="comp-c-rounds">--</td>
+                                <td><span class="badge badge-inactive">Inactive</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<!-- SCRIPTS -->
+<script src="{{ url_for('static', filename='advanced.js') }}"></script>
+
+</body>
+</html>

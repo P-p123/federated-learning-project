@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Verification - Federated Learning</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .status-box {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            border-left: 5px solid;
+        }
+
+        .status-box.success {
+            border-color: #10b981;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), transparent);
+        }
+
+        .status-box.warning {
+            border-color: #f59e0b;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.05), transparent);
+        }
+
+        .status-box.error {
+            border-color: #ef4444;
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.05), transparent);
+        }
+
+        .status-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .status-icon {
+            font-size: 2em;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #f0f1f5;
+        }
+
+        .status-box.success .status-icon {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+
+        .status-box.warning .status-icon {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+        }
+
+        .status-box.error .status-icon {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .status-title {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .status-subtitle {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-title {
+            font-size: 1.1em;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: #667eea;
+            margin: 10px 0;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .client-list {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .client-list h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .client-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+        }
+
+        .client-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid;
+        }
+
+        .client-card.honest { border-color: #10b981; }
+        .client-card.slow { border-color: #f59e0b; }
+        .client-card.sleepy { border-color: #8b5cf6; }
+        .client-card.fast { border-color: #3b82f6; }
+        .client-card.unreliable { border-color: #ef4444; }
+
+        .client-name {
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .client-info {
+            font-size: 0.85em;
+            color: #666;
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+        }
+
+        .check-mark {
+            color: #10b981;
+            font-weight: 700;
+        }
+
+        .warning-mark {
+            color: #f59e0b;
+        }
+
+        .error-mark {
+            color: #ef4444;
+        }
+
+        .issues-box {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid #ef4444;
+        }
+
+        .issues-box h3 {
+            color: #ef4444;
+            margin-bottom: 15px;
+        }
+
+        .issue-item {
+            padding: 10px;
+            background: #fee2e2;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            color: #991b1b;
+            font-size: 0.9em;
+        }
+
+        .back-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75em;
+            font-weight: 600;
+        }
+
+        .badge.honest { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+        .badge.slow { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+        .badge.sleepy { background: rgba(139, 92, 246, 0.2); color: #8b5cf6; }
+        .badge.fast { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+        .badge.unreliable { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-check-circle"></i> System Verification Report</h1>
+            <p>Federated Learning - Complete System Status</p>
+            <a href="/" class="back-btn" style="margin-top: 15px;"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+        </div>
+
+        <div id="verification-content">
+            <div style="text-align: center; padding: 40px;">
+                <div style="width: 50px; height: 50px; border: 4px solid #667eea; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px;"></div>
+                Loading system verification...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const BEHAVIOR_ICONS = {
+            'honest': '✓',
+            'slow': '🐌',
+            'sleepy': '😴',
+            'fast': '⚡',
+            'unreliable': '⚠️'
+        };
+
+        function loadVerification() {
+            fetch('/verify')
+                .then(r => r.json())
+                .then(data => {
+                    let html = '';
+
+                    // Overall Status
+                    const statusClass = data.all_present ? 'success' : (data.clients_found >= 8 ? 'warning' : 'error');
+                    const statusIcon = data.all_present ? '✓' : (data.clients_found >= 8 ? '⚠️' : '✗');
+                    const statusMsg = data.all_present ? 'All Systems Operational' : `${data.clients_found}/10 Clients Connected`;
+
+                    html += `
+                        <div class="status-box ${statusClass}">
+                            <div class="status-header">
+                                <div class="status-icon">${statusIcon}</div>
+                                <div>
+                                    <div class="status-title">${statusMsg}</div>
+                                    <div class="status-subtitle">
+                                        ${data.total_rounds_completed} rounds completed | 
+                                        Federated Accuracy: ${(data.federated_accuracy * 100).toFixed(2)}%
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    // Summary Cards
+                    html += `
+                        <div class="grid">
+                            <div class="card">
+                                <div class="card-title"><i class="fas fa-users"></i> Total Clients</div>
+                                <div class="stat-value">${data.clients_found}/10</div>
+                                <div class="stat-label">Hospital Nodes Connected</div>
+                            </div>
+                            <div class="card">
+                                <div class="card-title"><i class="fas fa-layer-group"></i> Training Rounds</div>
+                                <div class="stat-value">${data.total_rounds_completed}</div>
+                                <div class="stat-label">Federated Training Rounds</div>
+                            </div>
+                            <div class="card">
+                                <div class="card-title"><i class="fas fa-chart-line"></i> Accuracy</div>
+                                <div class="stat-value">${(data.federated_accuracy * 100).toFixed(2)}%</div>
+                                <div class="stat-label">Global Model Accuracy</div>
+                            </div>
+                        </div>
+                    `;
+
+                    // Client Details
+                    html += `
+                        <div class="client-list">
+                            <h2><i class="fas fa-hospital-user"></i> Hospital Client Status (${data.clients_found}/10)</h2>
+                            <div class="client-grid">
+                    `;
+
+                    const hospitals = [
+                        'Mayo Clinic',
+                        'Cleveland Clinic',
+                        'Johns Hopkins',
+                        'Massachusetts General',
+                        'UCLA Medical Center',
+                        'NYU Langone',
+                        'Duke University Hospital',
+                        'Stanford Hospital',
+                        'Mount Sinai Hospital',
+                        'Barnes-Jewish Hospital'
+                    ];
+
+                    for (let i = 0; i < 10; i++) {
+                        const clientKey = `client_${i}`;
+                        const client = data.clients[clientKey];
+                        
+                        if (client) {
+                            html += `
+                                <div class="client-card ${client.behavior}">
+                                    <div class="client-name">
+                                        ${BEHAVIOR_ICONS[client.behavior]} ${hospitals[i]}
+                                    </div>
+                                    <div class="client-info">
+                                        <span class="badge ${client.behavior}">${client.behavior.toUpperCase()}</span>
+                                        <span><span class="check-mark">✓</span> Connected</span>
+                                    </div>
+                                    <div class="client-info">
+                                        <span>Trained: ${client.trained_rounds}/${client.rounds_completed}</span>
+                                        <span>Acc: ${(client.final_accuracy * 100).toFixed(2)}%</span>
+                                    </div>
+                                </div>
+                            `;
+                        } else {
+                            html += `
+                                <div class="client-card" style="opacity: 0.5; border-color: #999;">
+                                    <div class="client-name">
+                                        ✗ ${hospitals[i]}
+                                    </div>
+                                    <div class="client-info" style="color: #999;">
+                                        <span class="error-mark">✗ Offline</span>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    }
+
+                    html += `</div></div>`;
+
+                    // Issues
+                    if (data.issues && data.issues.length > 0) {
+                        html += `<div class="issues-box">
+                            <h3><i class="fas fa-exclamation-triangle"></i> Issues Found</h3>
+                        `;
+                        data.issues.forEach(issue => {
+                            html += `<div class="issue-item">⚠️ ${issue}</div>`;
+                        });
+                        html += `</div>`;
+                    }
+
+                    // Summary
+                    html += `
+                        <div class="status-box success" style="margin-top: 30px;">
+                            <div class="status-header">
+                                <div class="status-icon">ℹ️</div>
+                                <div>
+                                    <div class="status-title">System Information</div>
+                                </div>
+                            </div>
+                            <div style="padding: 20px; background: white; border-radius: 8px; margin-top: 15px; font-size: 0.9em;">
+                                <p><strong>Report Generated:</strong> ${new Date(data.timestamp * 1000).toLocaleString()}</p>
+                                <p><strong>Status:</strong> ${data.status.toUpperCase()}</p>
+                                <p style="margin-top: 15px; color: #666;">
+                                    <i class="fas fa-info-circle"></i> This report verifies that the Federated Learning system is properly configured with 10 hospital clients participating in distributed model training.
+                                </p>
+                            </div>
+                        </div>
+                    `;
+
+                    document.getElementById('verification-content').innerHTML = html;
+                })
+                .catch(err => {
+                    document.getElementById('verification-content').innerHTML = `
+                        <div class="status-box error">
+                            <div class="status-header">
+                                <div class="status-icon">✗</div>
+                                <div>
+                                    <div class="status-title">Error Loading Verification</div>
+                                    <div class="status-subtitle">${err.message}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+        }
+
+        window.addEventListener('DOMContentLoaded', loadVerification);
+    </script>
+</body>
+</html>
